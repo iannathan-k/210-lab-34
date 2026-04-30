@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue> // Added for BFS
 #include <stack> // Added for DFS
+#include <string>
 
 // COMSC-210 | Lab 34 | Ian Kusmiantoro & Google Gemini Pro & Github Copilot
 
@@ -20,11 +21,13 @@ class Graph {
 public:
     // a vector of vectors of Pairs to represent an adjacency list
     vector<vector<Pair>> adjList;
+    vector<string> nodeNames; // Added to store our real-world application names
 
     // Graph Constructor
-    Graph(vector<Edge> const &edges) {
+    Graph(vector<Edge> const &edges, vector<string> const &names) {
         // resize the vector to hold SIZE elements of type vector<Edge>
         adjList.resize(SIZE);
+        nodeNames = names;
 
         // add edges to the directed graph
         for (auto &edge: edges) {
@@ -39,22 +42,29 @@ public:
         }
     }
 
-    // Print the graph's adjacency list
+    // Print the graph's adjacency list (Application Output)
     void printGraph() {
-        cout << "Graph's adjacency list:" << endl;
+        cout << "Server Network Topology:" << endl;
+        cout << "================================" << endl;
         for (int i = 0; i < adjList.size(); i++) {
-            // Added a check to skip printing nodes that have no edges (our "deleted" nodes)
+            // Skip printing nodes that have no edges (our "deleted" nodes)
             if (!adjList[i].empty()) {
-                cout << i << " --> ";
-                for (Pair v : adjList[i])
-                    cout << "(" << v.first << ", " << v.second << ") ";
-                cout << endl;
+                cout << "Node " << i << " (" << nodeNames[i] << ") connects to:" << endl;
+                for (Pair v : adjList[i]) {
+                    cout << "  -> Node " << v.first << " (" << nodeNames[v.first] 
+                         << ") - Latency: " << v.second << " ms" << endl;
+                }
             }
         }
+        cout << endl;
     }
 
-    // Depth-First Search
+    // Depth-First Search (Application Output)
     void DFS(int start) {
+        cout << "Network Trace (DFS) from Node " << start << " (" << nodeNames[start] << "):" << endl;
+        cout << "Purpose: Tracing simulated cyber attack path through the subnets" << endl;
+        cout << "=======================================" << endl;
+
         vector<bool> visited(SIZE, false); // ZyBooks uses an unordered_set, but we didn't learn that so I guess this will do - Ian
         stack<int> s; // Stack is used for DFS - Ian
 
@@ -66,22 +76,28 @@ public:
 
             // Check if visited here to handle duplicate pushes gracefully
             if (!visited[curr]) {
-                cout << curr << " ";
+                cout << "Inspecting Node " << curr << " (" << nodeNames[curr] << ")" << endl;
                 visited[curr] = true;
-            }
 
-            // Push neighbors to the stack
-            for (Pair v : adjList[curr]) {
-                if (!visited[v.first]) {
-                    s.push(v.first);
+                // Push neighbors to the stack
+                for (Pair v : adjList[curr]) {
+                    if (!visited[v.first]) {
+                        cout << "  -> Potential spread to Node " << v.first 
+                             << " (" << nodeNames[v.first] << ") - Latency: " << v.second << " ms" << endl;
+                        s.push(v.first);
+                    }
                 }
             }
         }
         cout << endl;
     }
 
-    // Breadth-First Search
+    // Breadth-First Search (Application Output)
     void BFS(int start) {
+        cout << "Layer-by-Layer Network Inspection (BFS) from Node " << start << " (" << nodeNames[start] << "):" << endl;
+        cout << "Purpose: Analyzing broadcast packet propagation by hop count" << endl;
+        cout << "=================================================" << endl;
+
         vector<bool> visited(SIZE, false);
         queue<int> q; // Queue is used for BFS - Ian
 
@@ -91,11 +107,13 @@ public:
         while (!q.empty()) {
             int curr = q.front();
             q.pop();
-            cout << curr << " ";
+            cout << "Checking Node " << curr << " (" << nodeNames[curr] << ")" << endl;
 
             // Traverse all neighbors of the current vertex
             for (Pair v : adjList[curr]) {
                 if (!visited[v.first]) {
+                    cout << "  -> Next reachable node: Node " << v.first 
+                         << " (" << nodeNames[v.first] << ") - Latency: " << v.second << " ms" << endl;
                     visited[v.first] = true;
                     q.push(v.first);
                 }
@@ -106,11 +124,17 @@ public:
 };
 
 int main() {
-    // Creates a vector of graph edges/weights
+    // Application Mappings: Server/Hardware names assigned to nodes 0 through 12.
+    // Notice nodes 3 and 4 are labeled "OFFLINE" to reflect our deleted nodes.
+    vector<string> serverNames = {
+        "Main Gateway", "Load Balancer A", "Load Balancer B", 
+        "OFFLINE", "OFFLINE", "Web Server Alpha", "Web Server Beta", 
+        "Database Server Primary", "Database Server Replica", 
+        "Cache Server", "Backup Storage", "Analytics Engine", "Log Server"
+    };
+
+    // Creates a vector of graph edges/weights (Latency in ms)
     vector<Edge> edges = {
-        // (x, y, w) —> edge from x to y having weight w
-        // Deleted old nodes 3 and 4
-        // Added nodes 7, 8, 9, 10, 11, 12 with entirely new weights
         {0, 1, 15},
         {0, 2, 10},
         {1, 5, 7},
@@ -123,18 +147,16 @@ int main() {
         {8, 12, 1}
     };
 
-    // Creates graph
-    Graph graph(edges);
+    // Creates graph passing in the edges and our new server names
+    Graph graph(edges, serverNames);
 
     // Prints adjacency list representation of graph
     graph.printGraph();
 
     // DFS Driver thing
-    cout << "DFS starting from vertex 0:" << endl;
     graph.DFS(0);
 
     // Bfs driver thingy
-    cout << "BFS starting from vertex 0:" << endl;
     graph.BFS(0);
 
     return 0;
