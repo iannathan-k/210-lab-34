@@ -1,8 +1,9 @@
 #include <iostream>
 #include <vector>
-#include <queue> // Added for BFS
+#include <queue> // Added for BFS and Dijkstra's Priority Queue
 #include <stack> // Added for DFS
 #include <string>
+#include <climits> // Added for INT_MAX used in Dijkstra's
 
 // COMSC-210 | Lab 34 | Ian Kusmiantoro & Google Gemini Pro & Github Copilot
 
@@ -121,6 +122,51 @@ public:
         }
         cout << endl;
     }
+
+    // Shortest Path - Dijkstra's Algorithm (Application Output)
+    void shortestPath(int start) {
+        cout << "Optimal Routing (Shortest Path) from Node " << start << " (" << nodeNames[start] << "):" << endl;
+        cout << "Purpose: Finding minimum latency paths to all active servers" << endl;
+        cout << "===========================================================" << endl;
+
+        // Priority queue to store {distance, vertex} pairs. 
+        // Using greater<Pair> to create a min-heap so the shortest distance is always on top.
+        priority_queue<Pair, vector<Pair>, greater<Pair>> pq;
+        
+        // Initialize all distances to infinity (INT_MAX)
+        vector<int> dist(SIZE, INT_MAX);
+
+        // Insert source itself into priority queue and initialize its distance as 0
+        pq.push(make_pair(0, start));
+        dist[start] = 0;
+
+        while (!pq.empty()) {
+            // Get the minimum distance vertex
+            int u = pq.top().second;
+            pq.pop();
+
+            // Iterate through all adjacent vertices of u
+            for (auto &v : adjList[u]) {
+                int vertex = v.first;
+                int weight = v.second;
+
+                // If there is a shorter path to v through u
+                if (dist[u] != INT_MAX && dist[u] + weight < dist[vertex]) {
+                    dist[vertex] = dist[u] + weight;
+                    pq.push(make_pair(dist[vertex], vertex));
+                }
+            }
+        }
+
+        // Print shortest paths, formatted to match the sample output while keeping our app theme
+        for (int i = 0; i < SIZE; i++) {
+            // Only print if the node is actually reachable (skips our offline "deleted" nodes 3 and 4)
+            if (dist[i] != INT_MAX) {
+                cout << start << " -> " << i << " : " << dist[i] << " ms (" << nodeNames[i] << ")" << endl;
+            }
+        }
+        cout << endl;
+    }
 };
 
 int main() {
@@ -158,6 +204,10 @@ int main() {
 
     // Bfs driver thingy
     graph.BFS(0);
+
+    // Dijkstra's Shortest Path driver
+    // NOTE: Looks like the bot defaulted ot Dijkstra's lol.
+    graph.shortestPath(0);
 
     return 0;
 }
