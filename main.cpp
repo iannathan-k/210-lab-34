@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
-#include <queue> // Added for BFS and Dijkstra's Priority Queue
+#include <queue> // Added for BFS and Dijkstra's/Prim's Priority Queue
 #include <stack> // Added for DFS
 #include <string>
-#include <climits> // Added for INT_MAX used in Dijkstra's
+#include <climits> // Added for INT_MAX used in Dijkstra's/Prim's
 
 // COMSC-210 | Lab 34 | Ian Kusmiantoro & Google Gemini Pro & Github Copilot
 
@@ -167,6 +167,57 @@ public:
         }
         cout << endl;
     }
+
+    // Minimum Spanning Tree - Prim's Algorithm (Application Output)
+    void MST(int start) {
+        cout << "Minimum Spanning Tree edges:" << endl;
+        cout << "Purpose: Finding the most efficient backbone to connect all servers" << endl;
+        cout << "===========================================================" << endl;
+
+        priority_queue<Pair, vector<Pair>, greater<Pair>> pq;
+        
+        vector<int> key(SIZE, INT_MAX);   // Weights of the edges used to reach nodes
+        vector<int> parent(SIZE, -1);     // Array to store the constructed MST
+        vector<bool> inMST(SIZE, false);  // To keep track of vertices included in MST
+
+        pq.push(make_pair(0, start));
+        key[start] = 0;
+
+        while (!pq.empty()) {
+            // Get the minimum key vertex
+            int u = pq.top().second;
+            pq.pop();
+
+            // If we've already included this node in the MST, skip it
+            if (inMST[u]) continue;
+            
+            // Include vertex in MST
+            inMST[u] = true;
+
+            // Iterate through all adjacent vertices of u
+            for (auto &v : adjList[u]) {
+                int vertex = v.first;
+                int weight = v.second;
+
+                // If v is not yet in the MST and the weight of (u,v) is smaller than current key of v
+                if (!inMST[vertex] && weight < key[vertex]) {
+                    key[vertex] = weight;
+                    pq.push(make_pair(key[vertex], vertex));
+                    parent[vertex] = u;
+                }
+            }
+        }
+
+        // Print the MST, mirroring the sample structure but using our latency terminology
+        for (int i = 0; i < SIZE; i++) {
+            // Print only if a parent exists (skips the start node and offline nodes)
+            if (parent[i] != -1) {
+                cout << "Edge from " << i << " to " << parent[i] 
+                     << " with latency: " << key[i] << " ms (" << nodeNames[i] << " <-> " << nodeNames[parent[i]] << ")" << endl;
+            }
+        }
+        cout << endl;
+    }
 };
 
 int main() {
@@ -208,6 +259,10 @@ int main() {
     // Dijkstra's Shortest Path driver
     // NOTE: Looks like the bot defaulted ot Dijkstra's lol.
     graph.shortestPath(0);
+
+    // Minimum Spanning Tree driver
+    // NOTE: Personally I like Kruskal but Prim is also cool
+    graph.MST(0);
 
     return 0;
 }
