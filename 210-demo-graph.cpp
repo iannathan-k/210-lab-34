@@ -1,10 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <queue>
-#include <stack>
-
-// COMSC-210 | Lab 34 | Ian Kusmiantoro
-
 using namespace std;
 
 const int SIZE = 7;
