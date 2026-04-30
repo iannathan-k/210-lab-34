@@ -7,7 +7,8 @@
 
 using namespace std;
 
-const int SIZE = 7;
+// Increased SIZE to 13 to handle the new nodes (up to node 12)
+const int SIZE = 13;
 
 struct Edge {
     int src, dest, weight;
@@ -42,10 +43,13 @@ public:
     void printGraph() {
         cout << "Graph's adjacency list:" << endl;
         for (int i = 0; i < adjList.size(); i++) {
-            cout << i << " --> ";
-            for (Pair v : adjList[i])
-                cout << "(" << v.first << ", " << v.second << ") ";
-            cout << endl;
+            // Added a check to skip printing nodes that have no edges (our "deleted" nodes)
+            if (!adjList[i].empty()) {
+                cout << i << " --> ";
+                for (Pair v : adjList[i])
+                    cout << "(" << v.first << ", " << v.second << ") ";
+                cout << endl;
+            }
         }
     }
 
@@ -105,15 +109,18 @@ int main() {
     // Creates a vector of graph edges/weights
     vector<Edge> edges = {
         // (x, y, w) —> edge from x to y having weight w
-        {0, 1, 12},
-        {0, 2, 8},
-        {0, 3, 21},
-        {2, 3, 6},
-        {2, 6, 2},
-        {5, 6, 6},
-        {4, 5, 9},
-        {2, 4, 4},
-        {2, 5, 5}
+        // Deleted old nodes 3 and 4
+        // Added nodes 7, 8, 9, 10, 11, 12 with entirely new weights
+        {0, 1, 15},
+        {0, 2, 10},
+        {1, 5, 7},
+        {1, 7, 14},
+        {2, 6, 22},
+        {2, 8, 5},
+        {5, 9, 3},
+        {7, 10, 9},
+        {6, 11, 12},
+        {8, 12, 1}
     };
 
     // Creates graph
